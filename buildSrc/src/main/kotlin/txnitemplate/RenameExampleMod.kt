@@ -16,6 +16,9 @@ abstract class RenameExampleMod @Inject constructor(private val dir: File, priva
                     .replace("Example Mod", modDisplayName)
                     .replace("toni.examplemod", "$authorID.$rootNS")
 
+                if(text.isEmpty())
+                    return@forEach
+
                 it.writeText(text)
             }
 

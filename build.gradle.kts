@@ -3,11 +3,12 @@ val settings = object : TxniTemplateSettings {
 	// -------------------- Dependencies ---------------------- //
 	override val depsHandler: DependencyHandler get() = object : DependencyHandler {
 		override fun addGlobal(deps: DependencyHandlerScope) {
-
+			deps.modImplementation("toni.txnilib:${mod.loader}-${mod.mcVersion}:1.0.4")
 		}
 
 		override fun addFabric(deps: DependencyHandlerScope) {
-
+			if (mod.mcVersion == "1.21.1")
+				deps.modImplementation("io.wispforest:accessories-fabric:1.0.0-beta.35+1.21")
 		}
 
 		override fun addForge(deps: DependencyHandlerScope) {
@@ -16,6 +17,8 @@ val settings = object : TxniTemplateSettings {
 
 		override fun addNeo(deps: DependencyHandlerScope) {
 
+			// Neoforge
+			//deps.implementation("io.wispforest:accessories-neoforge:${properties["accessories_version"]}")
 		}
 	}
 
@@ -79,7 +82,11 @@ repositories {
 	maven("https://maven.terraformersmc.com/releases/")
 	maven("https://raw.githubusercontent.com/Fuzss/modresources/main/maven/")
 	maven("https://maven.parchmentmc.org")
+	maven("https://maven.txni.dev/releases")
 	maven("https://maven.su5ed.dev/releases")
+	maven("https://maven.wispforest.io/releases")
+	maven("https://maven.fabricmc.net")
+	maven("https://maven.shedaniel.me/")
 }
 
 dependencies {
