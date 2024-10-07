@@ -3,22 +3,49 @@ val settings = object : TxniTemplateSettings {
 	// -------------------- Dependencies ---------------------- //
 	override val depsHandler: DependencyHandler get() = object : DependencyHandler {
 		override fun addGlobal(deps: DependencyHandlerScope) {
-			deps.modImplementation("toni.txnilib:${mod.loader}-${mod.mcVersion}:1.0.4")
+			deps.modImplementation("toni.txnilib:${mod.loader}-${mod.mcVersion}:1.0.20")
+			deps.modImplementation("toni.sodiumdynamiclights:${mod.loader}-${mod.mcVersion}:1.0.8") { isTransitive = false }
+
+			deps.runtimeOnly("org.anarres:jcpp:1.4.14") // required for iris
+			deps.runtimeOnly("org.antlr:antlr4-runtime:4.13.1") // required for iris
+			deps.runtimeOnly("io.github.douira:glsl-transformer:2.0.1") // required for iris
 		}
 
 		override fun addFabric(deps: DependencyHandlerScope) {
 			if (mod.mcVersion == "1.21.1")
+			{
 				deps.modImplementation("io.wispforest:accessories-fabric:1.0.0-beta.35+1.21")
+				deps.modImplementation(modrinth("iris", "1.8.0-beta.4+1.21-fabric"))
+			}
+			else {
+				deps.modImplementation("io.wispforest:accessories-fabric:1.0.0-beta.38+1.20.1")
+				deps.modImplementation(modrinth("iris", "1.7.5+1.20.1"))
+			}
 		}
 
 		override fun addForge(deps: DependencyHandlerScope) {
+			deps.modImplementation("io.wispforest:accessories-neoforge:1.0.0-beta.38+1.20.1") { isTransitive = false }
+			deps.minecraftRuntimeLibraries("io.wispforest:endec:0.1.8")
+			deps.minecraftRuntimeLibraries("io.wispforest.endec:gson:0.1.5")
+			deps.minecraftRuntimeLibraries("io.wispforest.endec:netty:0.1.4")
 
+			deps.modImplementation(modrinth("cloth-config", "11.1.136+forge"))
+			deps.modRuntimeOnly("dev.su5ed.sinytra.fabric-api:fabric-api:0.92.2+1.11.8+1.20.1")
+
+			deps.compileOnly(deps.annotationProcessor("io.github.llamalad7:mixinextras-common:0.3.5")!!)
+			deps.include(deps.implementation("io.github.llamalad7:mixinextras-forge:0.3.5")!!)
+
+			deps.modImplementation(modrinth("embeddium", "0.3.31+mc1.20.1"))
+			deps.modImplementation(modrinth("oculus", "1.20.1-1.7.0"))
 		}
 
 		override fun addNeo(deps: DependencyHandlerScope) {
+			deps.modImplementation("io.wispforest:accessories-neoforge:1.0.0-beta.35+1.21")
+			deps.minecraftRuntimeLibraries("io.wispforest:endec:0.1.8")
+			deps.minecraftRuntimeLibraries("io.wispforest.endec:gson:0.1.5")
+			deps.minecraftRuntimeLibraries("io.wispforest.endec:netty:0.1.4")
 
-			// Neoforge
-			//deps.implementation("io.wispforest:accessories-neoforge:${properties["accessories_version"]}")
+			deps.modCompileOnly(modrinth("iris", "1.8.0-beta.4+1.21-neoforge"))
 		}
 	}
 
@@ -27,17 +54,20 @@ val settings = object : TxniTemplateSettings {
 	// For configuring the dependecies that will show up on your mod page.
 	override val publishHandler: PublishDependencyHandler get() = object : PublishDependencyHandler {
 		override fun addShared(deps: DependencyContainer) {
+			deps.requires("txnilib")
+			deps.requires("accessories")
+
 			if (mod.isFabric) {
 				deps.requires("fabric-api")
 			}
 		}
 
 		override fun addCurseForge(deps: DependencyContainer) {
-
+			deps.requires("dynamiclights-reforged")
 		}
 
 		override fun addModrinth(deps: DependencyContainer) {
-
+			deps.requires("sodium-dynamic-lights")
 		}
 	}
 }
@@ -60,7 +90,7 @@ plugins {
 }
 
 // The manifold Gradle plugin version. Update this if you update your IntelliJ Plugin!
-manifold { manifoldVersion = "2024.1.31" }
+manifold { manifoldVersion = "2024.1.34" }
 
 txnitemplate {
 	sc = stonecutter
@@ -120,7 +150,7 @@ dependencies {
 
 		if (setting("runtime.sodium"))
 			modRuntimeOnly(settings.depsHandler.modrinth("sodium", when (mod.mcVersion) {
-				"1.21.1" -> "mc1.21-0.6.0-beta.1-fabric"
+				"1.21.1" -> "mc1.21-0.6.0-beta.2-fabric"
 				"1.20.1" -> "mc1.20.1-0.5.11"
 				else -> null
 			}))
@@ -136,7 +166,7 @@ dependencies {
 		"neoForge"("net.neoforged:neoforge:${property("deps.fml")}")
 
 		if (setting("runtime.sodium"))
-			runtimeOnly(settings.depsHandler.modrinth("sodium", "mc1.21-0.6.0-beta.1-neoforge"))
+			runtimeOnly(settings.depsHandler.modrinth("sodium", "mc1.21-0.6.0-beta.2-neoforge"))
 	}
 
 	vineflowerDecompilerClasspath("org.vineflower:vineflower:1.10.1")
@@ -160,7 +190,7 @@ loom {
 			ideConfigGenerated(true)
 			vmArgs("-Dmixin.debug.export=true", "-Dsodium.checks.issue2561=false")
 			// Mom look I'm in the codebase!
-			programArgs("--username=${mod.clientuser}", "--uuid=${mod.clientuuid}")
+			//programArgs("--username=${mod.clientuser}", "--uuid=${mod.clientuuid}")
 			runDir = "../../run/${stonecutter.current.project}/"
 		}
 	}
@@ -202,6 +232,14 @@ tasks {
 	}
 }
 
+tasks.withType<Tar>() {
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+tasks.withType<Zip>() {
+	duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
 tasks.compileJava {
 	options.encoding = "UTF-8"
 	options.compilerArgs.add("-Xplugin:Manifold")
@@ -218,10 +256,6 @@ project.tasks.register("setupManifoldPreprocessors") {
 
 tasks.setupChiseledBuild { finalizedBy("setupManifoldPreprocessors") }
 
-tasks.register<RenameExampleMod>("renameExampleMod", rootDir, mod.id, mod.name, mod.displayName, mod.namespace, mod.group).configure {
-	group = "build helpers"
-	description = "Renames the example mod to match the mod ID, name, and display name in gradle.properties"
-}
 
 val buildAndCollect = tasks.register<Copy>("buildAndCollect") {
 	group = "build"
