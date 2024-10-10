@@ -26,6 +26,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector4f;
 import toni.immersivelanterns.foundation.IPlayerLanternDataAccessor;
 import toni.immersivelanterns.foundation.ImmersiveLanternsMixinConfigPlugin;
+import toni.immersivelanterns.foundation.compat.EMFCompat;
 import toni.immersivelanterns.foundation.config.AllConfigs;
 
 #if mc == "201"
@@ -59,7 +60,12 @@ class LanternRenderer implements SimpleAccessoryRenderer {
 
             var hipOffset = isWearingArmor ? new Vec3(xOffset + 0.05f, -1.25f, zOffset + 0.05f) : new Vec3(xOffset - 0.1f, -1.25f, zOffset - 0.1f);
 
-            AccessoryRenderer.transformToModelPart(matrices, playerModel.body, hipOffset.x, hipOffset.y, hipOffset.z);
+            if (ImmersiveLanternsMixinConfigPlugin.isModLoaded("entity_model_features")) {
+                EMFCompat.transformToModelPart(matrices, playerModel, hipOffset.x, hipOffset.y, hipOffset.z);
+            }
+            else {
+                AccessoryRenderer.transformToModelPart(matrices, playerModel.body, hipOffset.x, hipOffset.y, hipOffset.z);
+            }
 
             matrices.translate(0.5f, lanternTop, 0.5f);
 

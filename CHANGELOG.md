@@ -1,2 +1,1 @@
-## Changelog
-- Initial release
+Fixed support with EMF, fixed client dependency error on Fabric servers

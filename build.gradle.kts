@@ -9,6 +9,7 @@ val settings = object : TxniTemplateSettings {
 			deps.runtimeOnly("org.anarres:jcpp:1.4.14") // required for iris
 			deps.runtimeOnly("org.antlr:antlr4-runtime:4.13.1") // required for iris
 			deps.runtimeOnly("io.github.douira:glsl-transformer:2.0.1") // required for iris
+			deps.runtimeOnly("org.apache.httpcomponents:httpmime:4.5.10")
 		}
 
 		override fun addFabric(deps: DependencyHandlerScope) {
@@ -16,10 +17,14 @@ val settings = object : TxniTemplateSettings {
 			{
 				deps.modImplementation("io.wispforest:accessories-fabric:1.0.0-beta.35+1.21")
 				deps.modImplementation(modrinth("iris", "1.8.0-beta.4+1.21-fabric"))
+
+				deps.modImplementation(modrinth("entity-model-features", "Qql6TI9W"))
+				deps.modRuntimeOnly(modrinth("entitytexturefeatures", "qQQ5ffvS"))
 			}
 			else {
 				deps.modImplementation("io.wispforest:accessories-fabric:1.0.0-beta.38+1.20.1")
 				deps.modImplementation(modrinth("iris", "1.7.5+1.20.1"))
+				deps.modImplementation(modrinth("entity-model-features", "QoWmvvjv"))
 			}
 		}
 
@@ -37,6 +42,9 @@ val settings = object : TxniTemplateSettings {
 
 			deps.modImplementation(modrinth("embeddium", "0.3.31+mc1.20.1"))
 			deps.modImplementation(modrinth("oculus", "1.20.1-1.7.0"))
+
+			deps.modCompileOnly(modrinth("entity-model-features", "2.2.6"))
+
 		}
 
 		override fun addNeo(deps: DependencyHandlerScope) {
@@ -44,6 +52,8 @@ val settings = object : TxniTemplateSettings {
 			deps.minecraftRuntimeLibraries("io.wispforest:endec:0.1.8")
 			deps.minecraftRuntimeLibraries("io.wispforest.endec:gson:0.1.5")
 			deps.minecraftRuntimeLibraries("io.wispforest.endec:netty:0.1.4")
+
+			deps.modCompileOnly(modrinth("entity-model-features", "gijBk6cS"))
 
 			deps.modCompileOnly(modrinth("iris", "1.8.0-beta.4+1.21-neoforge"))
 		}
